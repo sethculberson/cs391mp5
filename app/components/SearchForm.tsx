@@ -22,7 +22,7 @@ export default function SearchForm() {
         return;
       }
       
-      // Frontend validation using encodeURIComponent (optional but helpful)
+      // Validation using encodeURIComponent
       try {
         encodeURIComponent(trimmedFull);
         encodeURIComponent(trimmedShort);
@@ -30,19 +30,17 @@ export default function SearchForm() {
         setError("Invalid URL or alias");
         return;
       }
-      
-      try {
-        const newUrl = await createNewUrl(trimmedFull, trimmedShort);
-        const shortenedLink = `${window.location.origin}/${newUrl.shortened_url}`;
-        setResult(shortenedLink);
-        // Clear form on success
-        setFullUrl("");
-        setShortUrl("");
-      } catch (error: any) {
-        console.error("Error creating URL:", error);
-        // Display the specific error message from the backend
-        setError(error.message || "Failed to create shortened URL");
-      }
+      createNewUrl(trimmedFull, trimmedShort)
+        .then((newUrl) => {
+          setResult(`${window.location.origin}/${newUrl.shortened_url}`);
+          setFullUrl("");
+          setShortUrl("");
+        })
+        .catch(() => {
+          console.error("Error creating URL:", error);
+          // Display the specific error message from the backend
+          setError("Failed to create shortened URL");
+        });
     }
 
     return (
@@ -52,7 +50,7 @@ export default function SearchForm() {
               aria-label="enter-full-url"
               value={fullUrl}
               onChange={(e) => setFullUrl(e.target.value)}
-              placeholder="Full URL (e.g. https://example.com)"
+              placeholder="Full URL (e.g. https://www.example.com)"
               className="border border-orange-400 bg-transparent text-black placeholder-gray-500 p-2 focus:outline-none focus:ring-2 focus:ring-orange-300"
             />
             <input
